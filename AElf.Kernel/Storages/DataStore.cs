@@ -39,7 +39,7 @@ namespace AElf.Kernel.Storages
 
                 var key = pointerHash.GetKeyString(typeof(T).Name);
                 _logger.Info("[##KeyType1]: {0}", typeof(T).Name);
-                _logger.Info("[##DB-M1]: Key-[{0}], Value-[{1}]", key, obj);
+                _logger.Info("[##DB-M1]: Key-[{0}], Length-[{1}], Value-[{2}]", key, obj.ToByteArray().Length, obj);
                 await _keyValueDatabase.SetAsync(key, obj.ToByteArray());
             }
             catch (Exception e)
@@ -65,7 +65,7 @@ namespace AElf.Kernel.Storages
 
                 var key = pointerHash.GetKeyString(typeof(byte[]).Name);
                 _logger.Info("[##KeyType2]: {0}", typeof(byte[]).Name);
-                _logger.Info("[##DB-M2]: Key-[{0}], Value-[{1}]", key, obj);
+                _logger.Info("[##DB-M2]: Key-[{0}], Length-[{1}], Value-[{2}]", key, obj.Length, obj);
                 await _keyValueDatabase.SetAsync(key, obj);
             }
             catch (Exception e)
