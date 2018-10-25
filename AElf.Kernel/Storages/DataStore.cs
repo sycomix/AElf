@@ -7,6 +7,7 @@ using AElf.Kernel.Types;
 using Google.Protobuf;
 using Org.BouncyCastle.Asn1.X509;
 using AElf.Common;
+using NLog;
 
 namespace AElf.Kernel.Storages
 {
@@ -14,10 +15,12 @@ namespace AElf.Kernel.Storages
     public sealed class DataStore : IDataStore
     {
         private readonly IKeyValueDatabase _keyValueDatabase;
+        private readonly ILogger _logger;
 
         public DataStore(IKeyValueDatabase keyValueDatabase)
         {
             _keyValueDatabase = keyValueDatabase;
+            _logger = LogManager.GetLogger(nameof(DataStore));
         }
 
         public async Task InsertAsync<T>(Hash pointerHash, T obj) where T : IMessage
@@ -35,11 +38,13 @@ namespace AElf.Kernel.Storages
                 }
 
                 var key = pointerHash.GetKeyString(typeof(T).Name);
+                _logger.Info("[##KeyType1]: {0}", typeof(T).Name);
+                _logger.Info("[##DB-M1]: Key-[{0}], Value-[{1}]", key, obj);
                 await _keyValueDatabase.SetAsync(key, obj.ToByteArray());
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.Error(e.Message);
                 throw;
             }
         }
@@ -59,11 +64,13 @@ namespace AElf.Kernel.Storages
                 }
 
                 var key = pointerHash.GetKeyString(typeof(byte[]).Name);
+                _logger.Info("[##KeyType2]: {0}", typeof(byte[]).Name);
+                _logger.Info("[##DB-M2]: Key-[{0}], Value-[{1}]", key, obj);
                 await _keyValueDatabase.SetAsync(key, obj);
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                _logger.Error(e.Message);
                 throw;
             }
         }
