@@ -216,7 +216,7 @@ namespace AElf.Network.Connection
             Stopwatch s = Stopwatch.StartNew();
             _stream.Write(b, 0, b.Length);
             s.Stop();
-            _logger?.Trace($"Partial sent complete ({p.Position}) ({p.TotalDataSize} bytes): {s.Elapsed.TotalMilliseconds} ms");
+            _logger?.Trace($"Partial sent complete ({p.Position}) ({p.Data.Length} bytes): {s.Elapsed.TotalMilliseconds} ms");
         }
 
         #region Closing and disposing
