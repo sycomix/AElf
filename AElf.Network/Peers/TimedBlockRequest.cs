@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Timers;
 using AElf.ChainController;
 using AElf.Common;
@@ -54,6 +55,9 @@ namespace AElf.Network.Peers
             get { return _message; }
         }
 
+        private Stopwatch _s;
+        public long RoundTripTime => _s.ElapsedMilliseconds;
+
         private readonly Message _message;
         private readonly BlockRequest _blockRequest;
         
@@ -79,12 +83,14 @@ namespace AElf.Network.Peers
                 return;
             
             _timeoutTimer.Stop();
+            _s = Stopwatch.StartNew();
             RequestTimedOut?.Invoke(this, EventArgs.Empty);
         }
 
         public void Start()
         {
             _timeoutTimer.Start();
+            _s = Stopwatch.StartNew();
         }
 
         public bool SetCurrentPeer(IPeer peer)

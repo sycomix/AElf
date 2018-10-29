@@ -8,6 +8,7 @@ using AElf.Network.Connection;
 using AElf.Network.Data;
 using Easy.MessageHub;
 using Google.Protobuf;
+using ServiceStack;
 
 namespace AElf.Network.Peers
 {
@@ -147,6 +148,7 @@ namespace AElf.Network.Peers
                 if (req != null)
                 {
                     req.Cancel();
+                    _logger?.Trace($"Request for {blockHash.ToHex()} took {req.RoundTripTime} ms.");
                     _blockRequests.Remove(req);
                 }
             }
