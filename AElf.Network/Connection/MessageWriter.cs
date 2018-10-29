@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -135,12 +136,17 @@ namespace AElf.Network.Connection
 
                         partials.Add(endPartial);
 
-                        _logger?.Trace($"Message split into {partials.Count} packets.");
-
+                        
+                        _logger?.Trace($"Message send started ({partials.Count} packets)");
+                        
+                        Stopwatch s = Stopwatch.StartNew();
                         foreach (var msg in partials)
                         {
                             SendPartialPacket(msg);
                         }
+                        
+                        s.Stop();
+                        _logger?.Trace($"Message send complete: {s.Elapsed.TotalMilliseconds} ms");
                     }
                     else
                     {
@@ -207,7 +213,10 @@ namespace AElf.Network.Connection
                 b = ByteArrayHelpers.Combine(type, hasId, isbuffered, length, posBytes, isEndBytes, totalLengthBytes, arrData);
             }
 
+            Stopwatch s = Stopwatch.StartNew();
             _stream.Write(b, 0, b.Length);
+            s.Stop();
+            _logger?.Trace($"Partial sent complete ({p.Position}) ({p.TotalDataSize} bytes): {s.Elapsed.TotalMilliseconds} ms");
         }
 
         #region Closing and disposing
