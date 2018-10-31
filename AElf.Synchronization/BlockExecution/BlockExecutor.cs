@@ -8,15 +8,15 @@ using AElf.Common;
 using AElf.Execution.Execution;
 using AElf.Kernel;
 using AElf.Kernel.Managers;
+using AElf.Miner.EventMessages;
 using AElf.Miner.Rpc.Client;
 using AElf.Miner.Rpc.Exceptions;
+using AElf.Miner.TxMemPool;
 using AElf.Types.CSharp;
+using Easy.MessageHub;
 using Google.Protobuf;
 using NLog;
 using NServiceKit.Common.Extensions;
-using AElf.Miner.EventMessages;
-using AElf.Miner.TxMemPool;
-using Easy.MessageHub;
 
 namespace AElf.Synchronization.BlockExecution
 {
@@ -78,7 +78,7 @@ namespace AElf.Synchronization.BlockExecution
                     if (!tr.IsExecutable)
                     {
                         throw new InvalidBlockException($"Transaction is not executable. {tr}");
-                    }    
+                    }
                 }
 
                 txnRes = await ExecuteTransactions(readyTxns, block.Header.ChainId, block.Header.GetDisambiguationHash());
@@ -89,6 +89,7 @@ namespace AElf.Synchronization.BlockExecution
                 {
                     return result;
                 }
+
                 await UpdateSideChainInfo(block);
 
                 //Need-to-rollback boundary
@@ -96,7 +97,7 @@ namespace AElf.Synchronization.BlockExecution
                 await AppendBlock(block);
                 await InsertTxs(readyTxns, txnRes, block);
 
-                _logger?.Info($"Execute block {block.GetHash()}");
+                _logger?.Info($"Executed block {block.BlockHashToHex}.");
 
                 return result;
             }
@@ -104,11 +105,11 @@ namespace AElf.Synchronization.BlockExecution
             {
                 if (e is InvalidBlockException)
                 {
-                    _logger?.Warn(e, "Exception while execute block.");
+                    _logger?.Warn(e, $"Exception while execute block {block.BlockHashToHex}.");
                 }
                 else
                 {
-                    _logger?.Error(e, "Exception while execute block.");
+                    _logger?.Error(e, $"Exception while execute block {block.BlockHashToHex}.");
                 }
 
                 // TODO, no wait may need improve
@@ -160,12 +161,12 @@ namespace AElf.Synchronization.BlockExecution
 
         private List<TransactionResult> SortToOriginalOrder(List<TransactionResult> results, List<Transaction> txs)
         {
-            var indexes = txs.Select((x, i)=>new {hash=x.GetHash(),ind=i}).ToDictionary(x=>x.hash, x=>x.ind);
+            var indexes = txs.Select((x, i) => new {hash = x.GetHash(), ind = i}).ToDictionary(x => x.hash, x => x.ind);
             return results.Zip(results.Select(r => indexes[r.TransactionId]), Tuple.Create).OrderBy(
-                x => x.Item2).Select(x=>x.Item1).ToList();
+                x => x.Item2).Select(x => x.Item1).ToList();
 //                tx => indexes[tx.TransactionId]).ToList();
         }
-        
+
         #region Before transaction execution
 
         /// <summary>

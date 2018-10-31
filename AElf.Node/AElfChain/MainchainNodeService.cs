@@ -32,7 +32,6 @@ namespace AElf.Node.AElfChain
     public class MainchainNodeService : INodeService
     {
         private readonly ILogger _logger;
-
         private readonly ITxHub _txHub;
         private readonly IStateStore _stateStore;
         private readonly IMiner _miner;
@@ -47,7 +46,7 @@ namespace AElf.Node.AElfChain
         private IBlockChain _blockChain;
         private IConsensus _consensus;
 
-        // todo temp solution because to get the dlls we need the launchers directory (?)
+        // TODO temp solution because to get the dlls we need the launchers directory (?)
         private string _assemblyDir;
 
         public MainchainNodeService(
@@ -152,10 +151,7 @@ namespace AElf.Node.AElfChain
 
             SetupConsensus();
 
-            MessageHub.Instance.Subscribe<TxReceived>(async inTx =>
-            {
-                await _txHub.AddTransactionAsync(inTx.Transaction);
-            });
+            MessageHub.Instance.Subscribe<TxReceived>(async inTx => { await _txHub.AddTransactionAsync(inTx.Transaction); });
 
             MessageHub.Instance.Subscribe<UpdateConsensus>(option =>
             {
@@ -259,16 +255,10 @@ namespace AElf.Node.AElfChain
                 _consensus?.Start();
             }
 
-            MessageHub.Instance.Subscribe<BlockReceived>(async inBlock =>
-            {
-                _logger?.Trace($"Receive block of height {inBlock.Block.Index} - {inBlock.Block.BlockHashToHex}");
-                await _blockSynchronizer.ReceiveBlock(inBlock.Block);
-            });
+            MessageHub.Instance.Subscribe<BlockReceived>(async inBlock => { await _blockSynchronizer.ReceiveBlock(inBlock.Block); });
 
-            MessageHub.Instance.Subscribe<BlockMined>(inBlock =>
-            {
-                _blockSynchronizer.AddMinedBlock(inBlock.Block);
-            });
+            MessageHub.Instance.Subscribe<BlockMined>(inBlock => { _blockSynchronizer.AddMinedBlock(inBlock.Block); });
+
             #endregion start
 
             MessageHub.Instance.Publish(new ChainInitialized(null));
@@ -278,7 +268,7 @@ namespace AElf.Node.AElfChain
 
         public void Stop()
         {
-            //todo   
+            //todo
         }
 
         public bool IsDPoSAlive()

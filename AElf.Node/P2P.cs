@@ -116,7 +116,7 @@ namespace AElf.Node
 
                 args.Peer.EnqueueOutgoing(req);
 
-                _logger?.Debug("Send block " + b.GetHash().DumpHex() + " to " + args.Peer);
+                _logger?.Debug($"Send block {b.BlockHashToHex} to {args.Peer}.");
             }
             catch (Exception e)
             {
@@ -200,8 +200,7 @@ namespace AElf.Node
             var serializedBlock = b.ToByteArray();
             await _netManager.BroadcastBlock(block.GetHash().Value.ToByteArray(), serializedBlock);
 
-            var bh = block.GetHash().DumpHex();
-            _logger?.Trace($"Broadcasted block \"{bh}\" to peers with {block.Body.TransactionsCount} tx(s). Block height: [{block.Header.Index}].");
+            _logger?.Trace($"Broadcasted block {block.BlockHashToHex} to peers with {block.Body.TransactionsCount} tx(s). Block height {block.Header.Index}.");
 
             return true;
         }

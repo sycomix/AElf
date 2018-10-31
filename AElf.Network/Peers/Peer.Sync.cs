@@ -125,8 +125,6 @@ namespace AElf.Network.Peers
             byte[] blockHash = block.GetHashBytes();
             int blockHeight = (int) block.Header.Index;
 
-            _logger.Info($"Receive block {block.BlockHashToHex} at height {blockHeight}.");
-
             PendingBlock vBlock;
             lock (_blockLock)
             {
